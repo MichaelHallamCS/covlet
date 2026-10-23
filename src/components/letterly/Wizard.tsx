@@ -23,6 +23,7 @@ export function Wizard() {
   const [resume, setResume] = useState("");
   const [job, setJob] = useState<JobState>(emptyJob);
   const [loaded, setLoaded] = useState(false);
+  const [resetKey, setResetKey] = useState(0);
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -40,6 +41,7 @@ export function Wizard() {
     setResume("");
     setJob(emptyJob);
     setStep(0);
+    setResetKey((k) => k + 1);
   };
 
   return (
@@ -79,11 +81,15 @@ export function Wizard() {
         })}
       </ol>
 
-      {step === 0 && (
+      <div className={step === 0 ? "" : "hidden"}>
         <ResumeStep resume={resume} setResume={setResume} onClear={clearAll} onNext={() => setStep(1)} />
-      )}
-      {step === 1 && <JobStep job={job} setJob={setJob} onBack={() => setStep(0)} onNext={() => setStep(2)} />}
-      {step === 2 && <LetterStep resume={resume} job={job} setJob={setJob} onBack={() => setStep(1)} />}
+      </div>
+      <div className={step === 1 ? "" : "hidden"}>
+        <JobStep job={job} setJob={setJob} onBack={() => setStep(0)} onNext={() => setStep(2)} />
+      </div>
+      <div className={step === 2 ? "" : "hidden"}>
+        <LetterStep key={resetKey} active={step === 2} resume={resume} job={job} setJob={setJob} onBack={() => setStep(1)} />
+      </div>
     </div>
   );
 }
