@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- AI letter generation runs only in the server route /api/generate (src/lib/letter.server.ts); resumes and letters are never stored server-side — privacy promise in the UI.
+- Resume/image parsing and .docx/PDF export run in the browser via dynamically imported libs (src/lib/files.ts) — they are browser-only and must not load during SSR.

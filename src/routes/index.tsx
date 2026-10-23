@@ -1,24 +1,56 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { ShieldCheck, Lock, PenLine } from "lucide-react";
+import { Wizard } from "@/components/letterly/Wizard";
+import { Toaster } from "@/components/ui/sonner";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Letterly — Tailored cover letters in 30 seconds" },
+      {
+        name: "description",
+        content: "Upload your resume, add a job posting, and get a tailored cover letter that never invents experience.",
+      },
+      { property: "og:title", content: "Letterly — Tailored cover letters in 30 seconds" },
+      {
+        property: "og:description",
+        content: "Upload your resume, add a job posting, and get a tailored cover letter that never invents experience.",
+      },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="min-h-screen bg-background">
+      <Toaster richColors position="top-center" />
+      <header className="bg-hero">
+        <div className="mx-auto max-w-5xl px-5 pt-6">
+          <div className="flex items-center gap-2 font-semibold text-foreground">
+            <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary font-letter text-lg text-primary-foreground">
+              L
+            </span>
+            Letterly
+          </div>
+        </div>
+        <div className="mx-auto max-w-3xl px-5 pb-10 pt-12 text-center sm:pt-16">
+          <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+            Tailored cover letters in <span className="text-primary">30 seconds</span>
+          </h1>
+          <p className="mx-auto mt-4 max-w-xl text-lg text-muted-foreground">
+            Drop in your resume and a job posting. Get a specific, honest letter you can edit and send.
+          </p>
+          <ul className="mt-7 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+            <li className="flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-primary" />Never invents experience</li>
+            <li className="flex items-center gap-1.5"><Lock className="h-4 w-4 text-primary" />Your resume stays in your browser</li>
+            <li className="flex items-center gap-1.5"><PenLine className="h-4 w-4 text-primary" />Edit and export freely</li>
+          </ul>
+        </div>
+      </header>
+      <main className="mx-auto max-w-5xl px-4 pb-20 sm:px-5">
+        <Wizard />
+      </main>
     </div>
   );
 }
