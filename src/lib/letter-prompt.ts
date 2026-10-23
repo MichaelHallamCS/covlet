@@ -12,8 +12,8 @@ export interface GenerateRequest {
   tone: Tone;
   length: Length;
   focus: Focus;
-  feedback?: string;
-  currentDraft?: string;
+  feedback?: string | undefined;
+  currentDraft?: string | undefined;
 }
 
 export const TONES: Record<Tone, string> = {
