@@ -46,7 +46,7 @@ export function LetterStep({
   const [versions, setVersions] = useState<Version[]>([]);
   const [current, setCurrent] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<{ msg: string; retry?: () => void } | null>(null);
+  const [error, setError] = useState<{ msg: string; retry?: (() => void) | undefined } | null>(null);
   const [feedback, setFeedback] = useState("");
   const [statusIdx, setStatusIdx] = useState(0);
   const lastInputs = useRef("");
