@@ -52,7 +52,7 @@ export function LetterStep({
   const lastInputs = useRef("");
   const abortRef = useRef<AbortController | null>(null);
 
-  const inputsKey = JSON.stringify([resume, job.text, job.images.length, job.company, job.title, job.extra]);
+  const inputsKey = JSON.stringify([resume, job.text, job.images.length, job.extra]);
 
   useEffect(() => {
     if (!loading) return;
