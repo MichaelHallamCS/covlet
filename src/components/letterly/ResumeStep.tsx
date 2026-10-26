@@ -4,6 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Dropzone } from "./Dropzone";
 import { wordCount } from "@/lib/letter-prompt";
 
@@ -52,9 +63,25 @@ export function ResumeStep({
           <p className="mt-1 text-sm text-muted-foreground">PDF, DOCX, or TXT up to 5MB. It never leaves your browser except to draft the letter.</p>
         </div>
         {hasResume && (
-          <Button variant="ghost" size="sm" onClick={onClear} className="text-muted-foreground">
-            <Trash2 className="h-4 w-4" /> Clear my data
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="ghost" size="sm" className="text-muted-foreground">
+                <Trash2 className="h-4 w-4" /> Clear my data
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Clear your data?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This removes your saved resume and all letter history from this browser.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={onClear}>Clear everything</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         )}
       </div>
 

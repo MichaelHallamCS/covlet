@@ -17,13 +17,8 @@ import {
   type Length,
   type Tone,
 } from "@/lib/letter-prompt";
-import type { JobState } from "./Wizard";
-
-interface Version {
-  letter: string;
-  notes: string[];
-  label: string;
-}
+import { resumeLabelOf } from "@/lib/history";
+import type { JobState, Session, Version } from "./Wizard";
 
 const STATUS = ["Reading the job posting…", "Matching your experience…", "Picking your strongest evidence…", "Drafting…", "Polishing the opening line…"];
 
@@ -32,27 +27,33 @@ export function LetterStep({
   resume,
   job,
   setJob,
+  session,
+  setSession,
   onBack,
 }: {
   active: boolean;
   resume: string;
   job: JobState;
   setJob: (fn: (j: JobState) => JobState) => void;
+  session: Session;
+  setSession: (fn: (s: Session) => Session) => void;
   onBack: () => void;
 }) {
-  const [tone, setTone] = useState<Tone>("professional");
-  const [length, setLength] = useState<Length>("standard");
-  const [focus, setFocus] = useState<Focus>("balanced");
-  const [versions, setVersions] = useState<Version[]>([]);
-  const [current, setCurrent] = useState(0);
+  const { versions, current } = session;
+  const { tone, length, focus } = session.options;
+  const setOpt = (patch: Partial<Session["options"]>) => setSession((s) => ({ ...s, options: { ...s.options, ...patch } }));
+  const setTone = (tone: Tone) => setOpt({ tone });
+  const setLength = (length: Length) => setOpt({ length });
+  const setFocus = (focus: Focus) => setOpt({ focus });
+  const setCurrent = (i: number) => setSession((s) => ({ ...s, current: i }));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<{ msg: string; retry?: (() => void) | undefined } | null>(null);
   const [feedback, setFeedback] = useState("");
   const [statusIdx, setStatusIdx] = useState(0);
-  const lastInputs = useRef("");
-  const abortRef = useRef<AbortController | null>(null);
-
   const inputsKey = JSON.stringify([resume, job.text, job.images.length, job.extra]);
+  // A reopened entry already has drafts: don't auto-generate on mount.
+  const lastInputs = useRef(versions.length ? inputsKey : "");
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     if (!loading) return;
@@ -94,14 +95,27 @@ export function LetterStep({
         setError({ msg: data.error ?? "Something went wrong.", retry: res.status === 429 ? undefined : () => generate(opts) });
         return;
       }
-      const v: Version = {
-        letter: data.letter,
-        notes: data.notes ?? [],
-        label: opts?.feedback ? "Revised" : TONES[tone],
-      };
-      setVersions((vs) => {
-        setCurrent(vs.length);
-        return [...vs, v];
+      const now = Date.now();
+      const usedImages = job.images.length > 0;
+      setSession((s) => {
+        const v: Version = {
+          id: crypto.randomUUID(),
+          letter: data.letter,
+          notes: data.notes ?? [],
+          label: `v${s.versions.length + 1}`,
+          options: { tone, length, focus },
+          ...(opts?.feedback ? { feedback: opts.feedback } : {}),
+          createdAt: now,
+        };
+        return {
+          ...s,
+          entryId: s.entryId ?? crypto.randomUUID(),
+          createdAt: s.entryId ? s.createdAt : now,
+          resumeLabel: s.resumeLabel || resumeLabelOf(resume),
+          usedScreenshots: s.usedScreenshots || usedImages,
+          versions: [...s.versions, v],
+          current: s.versions.length,
+        };
       });
       setJob((j) => ({
         ...j,
@@ -124,7 +138,8 @@ export function LetterStep({
 
   const v = versions[current];
   const setLetter = (letter: string) =>
-    setVersions((vs) => vs.map((x, i) => (i === current ? { ...x, letter } : x)));
+    setSession((s) => ({ ...s, versions: s.versions.map((x, i) => (i === s.current ? { ...x, letter } : x)) }));
+  const missingScreenshots = session.restored && session.usedScreenshots && job.images.length === 0;
   const fileBase = `Cover Letter${job.company ? ` - ${job.company}` : ""}`.replace(/[\\/:*?"<>|]/g, "");
 
   return (
