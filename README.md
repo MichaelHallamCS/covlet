@@ -1,18 +1,88 @@
-# Welcome to your Lovable project
+# Letterly
 
-This project was built with [Lovable](https://lovable.dev).
+**Tailored cover letters in 30 seconds.** Letterly is a single-page web app that turns your resume and a job posting into a specific, honest cover letter — one that maps your real experience to what the posting asks for and never invents employers, degrees, or metrics.
 
-## Build with Lovable
+## What it does
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+Letterly walks you through three steps:
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
+1. **Resume** — Upload a PDF, DOCX, or TXT resume (or paste the text). Parsing happens entirely in your browser; the text is saved to your browser's local storage so you can come back without re-uploading.
+2. **Job posting** — Paste the posting text, or upload screenshots of it. You can optionally add the company name, job title, and anything specific you want mentioned ("mention my open-source work").
+3. **Your letter** — The AI drafts a letter on paper-style writing surface. From there you can:
+   - Switch **tone** (Professional, Warm & Conversational, Confident & Bold, Concise & Direct), **length** (~150 / ~250–300 / ~400 words), and **focus** (Balanced, Skills, Achievements, Career change), then regenerate.
+   - **Apply feedback** — describe what to change ("make the opening less generic") and get a revised draft.
+   - Keep and compare **multiple versions** (v1, v2, …) and switch between them.
+   - Edit the letter inline (it's a plain editable textarea), copy it, or export as **.docx** or **PDF** with a dated header built from your resume's name and contact lines.
 
-## Development
+When a requirement in the posting isn't backed by your resume, the app flags it in a **Notes** box under the letter instead of fabricating a claim.
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+## Privacy
+
+- Your resume and letters are **never stored on the server**. There's no database — nothing to leak.
+- Resume parsing, screenshot compression, and .docx/PDF export all run in your browser via libraries loaded on demand.
+- The resume text, job posting, and screenshots are sent only to the letter-generation endpoint for the duration of one request, purely to write the letter.
+- Only the resume text persists locally in your browser (local storage), and the "Clear" button on step 1 wipes it along with everything else.
+
+## Honesty guarantees
+
+The letter generator runs under a strict system prompt:
+
+- Use **only** facts present in the resume — never invent employers, degrees, skills, metrics, or dates.
+- Map the 3–4 most important job requirements to the strongest matching evidence; if the resume can't support a requirement, say so in the notes rather than claim it.
+- No "I am writing to apply…" openers, no clichés ("team player", "passionate", "dynamic").
+- Plain text output with the greeting first — no dates or address headers to delete.
+
+Prompt-injection resistant: the resume, job posting, and screenshots are treated strictly as data, never as instructions.
+
+## Tech stack
+
+| Layer | Choice |
+| --- | --- |
+| Framework | TanStack Start v1 (React 19, SSR, file-based routing) |
+| Build | Vite 8, deploys to edge functions |
+| Styling | Tailwind CSS v4 + shadcn/ui components |
+| AI | Lovable AI Gateway (OpenAI Responses API, structured output via Zod) |
+| Client-side parsing | `pdfjs-dist` (PDF), `mammoth` (DOCX), canvas compression for screenshots |
+| Export | `docx` (.docx), `jspdf` (PDF) |
+| Tests | Vitest + Testing Library |
+| Error monitoring | Lovable error reporting |
+
+## Project structure
+
+```
+src/
+├── routes/
+│   ├── index.tsx              # Landing page + step-1 hero
+│   ├── api/generate.ts        # POST /api/generate — letter generation server route
+│   └── __root.tsx             # App shell, fonts, 404/error boundaries
+├── components/letterly/
+│   ├── Wizard.tsx             # 3-step state machine, resume persistence
+│   ├── ResumeStep.tsx         # Upload/paste resume
+│   ├── JobStep.tsx            # Posting text, screenshots, company/title/extra
+│   ├── LetterStep.tsx         # Generation, versions, editing, export
+│   └── Dropzone.tsx           # Shared file dropzone
+├── lib/
+│   ├── letter-prompt.ts       # Prompt builder + option catalogs (shared client/server)
+│   ├── letter.server.ts       # Server-only: AI call, rate limiting, error mapping
+│   └── files.ts               # Browser-only: parsing, image compression, exports
+├── start.ts                   # Server middleware (error page, CSRF for server functions)
+└── styles.css                 # Tailwind v4 theme + design tokens
+```
+
+## How generation works
+
+1. The browser POSTs a JSON request to `/api/generate` with the resume text, job text and/or screenshots (as data URLs), optional company/title/extra, and the chosen tone/length/focus.
+2. The server route builds a prompt (resume and posting wrapped in fenced blocks, user notes marked as instructions-from-the-user), validates and clamps the input (max 5 screenshots, 20k characters each), and calls the Lovable AI Gateway with a structured-output schema: `{ letter, detected_company, detected_title, notes }`.
+3. If the user didn't type a company or title, the ones detected from the posting are auto-filled back into the form.
+4. The JSON response returns to the browser; nothing is persisted anywhere.
+
+**Rate limiting:** each IP may generate up to 20 letters per hour (best-effort, per worker instance). Exceeding it returns a friendly 429.
+
+**Error handling:** upstream failures are mapped to human-readable messages — "AI is busy" (429), "AI credits have run out" (402), "The AI declined this request" (403), plus a clear "Try again" card in the UI when a draft fails.
+
+## Getting started
+
+Prerequisites: Node.js (v20+ recommended) and npm.
 
 ```sh
 git clone <this-repository-url>
@@ -21,9 +91,27 @@ npm i
 npm run dev
 ```
 
-## Built with
+Open http://localhost:8080. The app runs without extra setup when built through Lovable, where the `LOVABLE_API_KEY` for the AI gateway is provisioned automatically. If you self-host outside Lovable, set `LOVABLE_API_KEY` in the server environment — generation returns a 500 with "AI is not configured." without it.
 
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
+## Scripts
+
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Start the dev server with HMR |
+| `npm run build` | Production build |
+| `npm run preview` | Preview the production build |
+| `npm run test` | Run the test suite once |
+| `npm run test:watch` | Run tests in watch mode |
+| `npm run lint` | ESLint |
+| `npm run format` | Prettier write |
+
+## Testing
+
+The project ships with Vitest (jsdom + Testing Library). Run `npm run test` — the existing suite covers app routing. Test files live in `src/test/`.
+
+## Notes for developers
+
+- **Server/browser boundaries matter.** `src/lib/letter.server.ts` runs only server-side; `src/lib/files.ts` is browser-only and must always be imported dynamically so it never loads during SSR. File parsing and export must stay client-side.
+- The AI model and gateway base URL are constants at the top of `letter.server.ts`.
+- `routeTree.gen.ts` is generated by the router plugin — never edit it by hand.
+- Resume text is clamped to 20,000 characters and screenshots to 5 per request before being sent to the model.
