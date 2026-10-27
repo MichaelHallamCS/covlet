@@ -1,10 +1,10 @@
-# Letterly
+# Covlet
 
-**Tailored cover letters in 30 seconds.** Letterly is a single-page web app that turns your resume and a job posting into a specific, honest cover letter — one that maps your real experience to what the posting asks for and never invents employers, degrees, or metrics.
+**Tailored cover letters in 30 seconds.** Covlet is a single-page web app that turns your resume and a job posting into a specific, honest cover letter — one that maps your real experience to what the posting asks for and never invents employers, degrees, or metrics.
 
 ## What it does
 
-Letterly walks you through three steps:
+Covlet walks you through three steps:
 
 1. **Resume** — Upload a PDF, DOCX, or TXT resume (or paste the text). Parsing happens entirely in your browser; the text is saved to your browser's local storage so you can come back without re-uploading.
 2. **Job posting** — Paste the posting text, or upload screenshots of it. You can optionally add the company name, job title, and anything specific you want mentioned ("mention my open-source work").
@@ -58,7 +58,7 @@ src/
 │   ├── index.tsx              # Landing page + step-1 hero
 │   ├── api/generate.ts        # POST /api/generate — letter generation server route
 │   └── __root.tsx             # App shell, fonts, 404/error boundaries
-├── components/letterly/
+├── components/covlet/
 │   ├── Wizard.tsx             # Page layout, step state, session + auto-save to history
 │   ├── HistorySidebar.tsx     # History list, search, grouping, row actions
 │   ├── useHistory.ts          # Hook: loads history, exposes mutations
