@@ -56,7 +56,7 @@ async function getStore(): Promise<HistoryStore> {
   if (store) return store;
   if (typeof indexedDB === "undefined") throw new Error("History isn't available in this browser.");
   const idb = await import("idb-keyval");
-  const s = idb.createStore("letterly", "history");
+  const s = idb.createStore("covlet", "history");
   store = {
     getAll: () => idb.values<HistoryEntry>(s),
     get: (id) => idb.get<HistoryEntry>(id, s),

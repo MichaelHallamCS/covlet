@@ -103,7 +103,7 @@ function fromEntry(e: HistoryEntry): { session: Session; job: JobState } {
 
 const snapshot = (s: Session, job: JobState) => JSON.stringify(toEntry(s, job, 0));
 
-const STORAGE_KEY = "letterly.resume";
+const STORAGE_KEY = "covlet.resume";
 const STEPS = ["Resume", "Job posting", "Your letter"];
 
 export function Wizard({ hero }: { hero?: ReactNode }) {
@@ -202,9 +202,9 @@ export function Wizard({ hero }: { hero?: ReactNode }) {
             {showSidebar && <SidebarTrigger aria-label="Toggle letter history" className="-ml-1" />}
             <div className="flex items-center gap-2 font-semibold text-foreground">
               <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary font-letter text-lg text-primary-foreground">
-                L
+                C
               </span>
-              Letterly
+              Covlet
             </div>
           </div>
           {hero}

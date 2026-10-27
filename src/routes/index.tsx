@@ -1,17 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ShieldCheck, Lock, PenLine } from "lucide-react";
-import { Wizard } from "@/components/letterly/Wizard";
+import { Wizard } from "@/components/covlet/Wizard";
 import { Toaster } from "@/components/ui/sonner";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Letterly — Tailored cover letters in 30 seconds" },
+      { title: "Covlet — Tailored cover letters in 30 seconds" },
       {
         name: "description",
         content: "Upload your resume, add a job posting, and get a tailored cover letter that never invents experience.",
       },
-      { property: "og:title", content: "Letterly — Tailored cover letters in 30 seconds" },
+      { property: "og:title", content: "Covlet — Tailored cover letters in 30 seconds" },
       {
         property: "og:description",
         content: "Upload your resume, add a job posting, and get a tailored cover letter that never invents experience.",
