@@ -14,6 +14,8 @@ Letterly walks you through three steps:
    - Keep and compare **multiple versions** (v1, v2, …) and switch between them.
    - Edit the letter inline (it's a plain editable textarea), copy it, or export as **.docx** or **PDF** with a dated header built from your resume's name and contact lines.
 
+**History** — every letter session (one job posting plus all its drafts) is saved automatically in a left sidebar, grouped by Today / Yesterday / Previous 7 days / Older. Search by title, company, or letter text; click an entry to reopen it with all versions; rename, duplicate, or delete entries from the "…" menu; or start fresh with **New letter**. On phones the sidebar opens as a drawer.
+
 When a requirement in the posting isn't backed by your resume, the app flags it in a **Notes** box under the letter instead of fabricating a claim.
 
 ## Privacy
@@ -21,7 +23,8 @@ When a requirement in the posting isn't backed by your resume, the app flags it 
 - Your resume and letters are **never stored on the server**. There's no database — nothing to leak.
 - Resume parsing, screenshot compression, and .docx/PDF export all run in your browser via libraries loaded on demand.
 - The resume text, job posting, and screenshots are sent only to the letter-generation endpoint for the duration of one request, purely to write the letter.
-- Only the resume text persists locally in your browser (local storage), and the "Clear" button on step 1 wipes it along with everything else.
+- Two things persist in your browser only: the resume text (local storage) and your letter history (IndexedDB) — letters, Notes, job posting text, and your "mention this" notes, but **never screenshots**. History is never sent to a server except as part of the one-request generation flow above.
+- The "Clear my data" button on step 1 wipes both the resume and all letter history; "Clear all history" in the sidebar wipes history only. History is capped at 100 entries (oldest dropped first).
 
 ## Honesty guarantees
 
@@ -56,7 +59,9 @@ src/
 │   ├── api/generate.ts        # POST /api/generate — letter generation server route
 │   └── __root.tsx             # App shell, fonts, 404/error boundaries
 ├── components/letterly/
-│   ├── Wizard.tsx             # 3-step state machine, resume persistence
+│   ├── Wizard.tsx             # Page layout, step state, session + auto-save to history
+│   ├── HistorySidebar.tsx     # History list, search, grouping, row actions
+│   ├── useHistory.ts          # Hook: loads history, exposes mutations
 │   ├── ResumeStep.tsx         # Upload/paste resume
 │   ├── JobStep.tsx            # Posting text, screenshots, company/title/extra
 │   ├── LetterStep.tsx         # Generation, versions, editing, export
@@ -64,7 +69,8 @@ src/
 ├── lib/
 │   ├── letter-prompt.ts       # Prompt builder + option catalogs (shared client/server)
 │   ├── letter.server.ts       # Server-only: AI call, rate limiting, error mapping
-│   └── files.ts               # Browser-only: parsing, image compression, exports
+│   ├── files.ts               # Browser-only: parsing, image compression, exports
+│   └── history.ts             # Browser-only: IndexedDB letter history + pure helpers
 ├── start.ts                   # Server middleware (error page, CSRF for server functions)
 └── styles.css                 # Tailwind v4 theme + design tokens
 ```
@@ -107,7 +113,7 @@ Open http://localhost:8080. The app runs without extra setup when built through 
 
 ## Testing
 
-The project ships with Vitest (jsdom + Testing Library). Run `npm run test` — the existing suite covers app routing. Test files live in `src/test/`.
+The project ships with Vitest (jsdom + Testing Library). Run `npm run test` — the suite covers app routing, history logic (date grouping, search, 100-entry cap, rename/duplicate/delete), and the history sidebar. Test files live in `src/test/`.
 
 ## Notes for developers
 

@@ -11,3 +11,4 @@
 
 - AI letter generation runs only in the server route /api/generate (src/lib/letter.server.ts); resumes and letters are never stored server-side — privacy promise in the UI.
 - Resume/image parsing and .docx/PDF export run in the browser via dynamically imported libs (src/lib/files.ts) — they are browser-only and must not load during SSR.
+- Letter history lives only in browser IndexedDB via src/lib/history.ts (idb-keyval loaded lazily, never at module top level); screenshots are never persisted — keeps the no-server-storage privacy promise.
