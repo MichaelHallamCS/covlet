@@ -10,8 +10,9 @@ import {
   renameEntry,
   saveEntry,
   setHistoryStore,
-  type HistoryEntry,
 } from "@/lib/history";
+import type { HistoryEntry } from "@/lib/history";
+import { entry } from "./history-fixtures";
 
 function memoryStore() {
   const m = new Map<string, HistoryEntry>();
@@ -21,25 +22,6 @@ function memoryStore() {
     set: async (e: HistoryEntry) => void m.set(e.id, e),
     del: async (id: string) => void m.delete(id),
     clear: async () => m.clear(),
-  };
-}
-
-export function entry(id: string, updatedAt: number, extra: Partial<HistoryEntry> = {}): HistoryEntry {
-  return {
-    id,
-    title: `Engineer at Co${id}`,
-    company: `Co${id}`,
-    jobTitle: "Engineer",
-    jobText: "job",
-    extra: "",
-    resumeLabel: "Jane Doe",
-    usedScreenshots: false,
-    options: { tone: "professional", length: "standard", focus: "balanced" },
-    versions: [{ id: `${id}-v1`, label: "v1", letter: "Dear team", notes: "", options: { tone: "professional", length: "standard", focus: "balanced" }, createdAt: updatedAt }],
-    activeVersionId: `${id}-v1`,
-    createdAt: updatedAt,
-    updatedAt,
-    ...extra,
   };
 }
 
@@ -67,7 +49,7 @@ describe("filterEntries", () => {
     const list = [
       entry("1", 1, { title: "Designer at Acme" }),
       entry("2", 2, { company: "Globex" }),
-      entry("3", 3, { versions: [{ ...entry("3", 3).versions[0], letter: "I love KUBERNETES" }] }),
+      entry("3", 3, { versions: [{ ...entry("3", 3).versions[0]!, letter: "I love KUBERNETES" }] }),
     ];
     expect(filterEntries(list, "acme").map((e) => e.id)).toEqual(["1"]);
     expect(filterEntries(list, "GLOBEX").map((e) => e.id)).toEqual(["2"]);
