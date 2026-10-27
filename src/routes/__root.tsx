@@ -78,7 +78,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Letterly — Tailored cover letters" },
+      { title: "Covlet — Tailored cover letters" },
       { name: "description", content: "Generate tailored cover letters from your resume and a job posting." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

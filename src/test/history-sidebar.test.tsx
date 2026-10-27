@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { HistorySidebar } from "@/components/letterly/HistorySidebar";
+import { HistorySidebar } from "@/components/covlet/HistorySidebar";
 import { entry } from "./history-fixtures";
 
 describe("HistorySidebar", () => {
